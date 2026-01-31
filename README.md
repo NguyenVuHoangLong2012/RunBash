@@ -16,6 +16,8 @@ thông qua Command Prompt hoặc PowerShell.
 - Cho phép chỉ định Bash thủ công bằng biến môi trường RUNBASH_BASH.
 - Trả đúng exit code của Bash script.
 - Không phụ thuộc GUI, nhẹ và đơn giản.
+- Ưu tiên cách gọi trực tiếp Bash script để giữ hành vi tương tự Git Bash.
+- Tối ưu trải nghiệm người dùng để có trải nghiệm tốt nhất có thể.
 ## Yêu cầu:
 - Git For Windows.  
   Tải tại:
