@@ -15,6 +15,9 @@ thông qua Command Prompt hoặc PowerShell.
 - Git For Windows.
   Tải tại:
   (https://git-scm.com/download/win)
+## Tải xuống RunBash:
+Tải xuống tại:
+(https://github.com/NguyenVuHoangLong2012/RunBash/blob/main/RunBash.exe)
 ## Cách cài đặt:
 Sau khi tải xuống tệp RunBash.EXE hãy đưa nó vào System32 hoặc thêm nó vào Path để bạn có thể gọi RunBash.EXE ở bất kì đâu.
 - Nếu bạn muốn đưa tệp RunBash.EXE vào System32 hãy copy RunBash.EXE và duyệt theo đường dẫn sau:
@@ -36,3 +39,6 @@ Sau khi nhập xong hãy nhấn Enter > OK > OK > OK để đóng tất cả cá
 - Sử dụng "runbash.exe --help" để hiển thị trợ giúp này.
 - Sử dụng "runbash.exe --about" để hiển thị toàn bộ thông tin.
 - Biến môi trường: RUNBASH_BASH – dùng để chỉ định đường dẫn Bash tùy chỉnh thay vì tự động dò tìm.
+## Lưu ý về dự án:
+Dự án này được cá nhân tôi phát triển và có thể không còn được phát triển trong tương lai.
+Chương trình này theo giấy phép Mit, xem giấy phép tại:
