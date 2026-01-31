@@ -42,3 +42,4 @@ Sau khi nhập xong hãy nhấn Enter > OK > OK > OK để đóng tất cả cá
 ## Lưu ý về dự án:
 Dự án này được cá nhân tôi phát triển và có thể không còn được phát triển trong tương lai.
 Chương trình này theo giấy phép Mit, xem giấy phép tại:
+(https://github.com/NguyenVuHoangLong2012/RunBash/blob/main/LICENSE)
