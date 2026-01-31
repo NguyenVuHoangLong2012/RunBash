@@ -3,6 +3,7 @@ Tên: RunBash.
 Phiên bản: 1.8 (Chính thức).
 Nền tảng: Windows.
 RunBash là một công cụ dòng lệnh viết bằng Python, giúp chạy Bash script (.sh, .bash) trên Windows một cách nhanh gọn mà không cần mở Git Bash thủ công. Chương trình tự động tìm Bash (Git Bash), hỗ trợ login shell, truyền tham số cho script, và cho phép chỉ định đường dẫn Bash bằng biến môi trường RUNBASH_BASH.
+Lưu ý: Chương trình này phụ thuộc vào tệp "Git_Folder\bin\Bash.EXE" đi kèm trong gói Git For Windows.
 ## Mô tả:
 RunBash là một CLI tool dành cho Windows,
 cho phép chạy Bash script (.sh, .bash) trực tiếp
@@ -35,7 +36,8 @@ Sau khi nhấn Edit bạn sẽ thấy một danh sách đường dẫn hiện ra
 Sau khi nhập xong hãy nhấn Enter > OK để đóng hộp thoại Environment variables.
 - Nếu bạn sử dụng Git For Windows portable hoặc muốn sử dụng một bản Bash.EXE khác ở bước này hãy nhấn vào New ở một trong hai khung User variables hoặc System variables, ở ô Variable name hãy nhập tên biến môi trường này là RUNBASH_BASH và ở ô Variable value hãy nhập đường dẫn tới tệp "Git_Folder\bin\Bash.EXE" mà bạn muốn chương trình sử dụng mặc định hoặc nhấn vào Browse File... để duyệt tới file đó.
  Chẳng hạn như trong ví dụ này là "C:\Tool\Git\bin\Bash.EXE".
-Sau khi chọn xong file hãy nhấn OK để Windows tạo biến môi trường RUNBASH_BASH.
+Sau khi chọn xong file hãy nhấn OK để Windows tạo biến môi trường RUNBASH_BASH..
+Nếu bạn sử dụng Git For Windows chuẩn hãy bỏ qua bước này.
 Cuối cùng hãy nhấn OK > OK để đóng tất cả các hộp thoại hiện tại đang mở..
 Vậy đã xong.
   ## Hướng dẫn sử dụng:
