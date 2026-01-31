@@ -17,7 +17,7 @@ thông qua Command Prompt hoặc PowerShell.
   (https://git-scm.com/download/win)
 ## Tải xuống RunBash:
 Tải xuống tại:
-(https://github.com/NguyenVuHoangLong2012/RunBash/blob/main/RunBash.exe)
+(https://github.com/NguyenVuHoangLong2012/RunBash/releases/latest)
 ## Cách cài đặt:
 Sau khi tải xuống tệp RunBash.EXE hãy đưa nó vào System32 hoặc thêm nó vào Path để bạn có thể gọi RunBash.EXE ở bất kì đâu.
 - Nếu bạn muốn đưa tệp RunBash.EXE vào System32 hãy copy RunBash.EXE và duyệt theo đường dẫn sau:
