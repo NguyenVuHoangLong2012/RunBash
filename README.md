@@ -11,6 +11,10 @@ RunBash là một CLI tool dành cho Windows,
 cho phép chạy Bash script (.sh, .bash) trực tiếp
 thông qua Command Prompt hoặc PowerShell.
 ## Tính năng chính:
+- Cho phép click chuột vào trực tiếp các tệp SH hoặc BASH để mở trực tiếp bằng Bash (Git Bash).
+- Làm Windows coi các tệp SH và BASH như các tệp tích hợp.
+- Đảm bảo môi trường ổn định khi chạy Bash script.
+- Cung cấp các cờ tiền tố để chạy một Bash script nhanh chóng trong Command Prompt hoặc PowerShell.
 - Tự động phát hiện Bash (Git Bash) trên hệ thống.
 - Hỗ trợ chạy Bash với login shell (-l).
 - Truyền tham số cho Bash script.
@@ -26,6 +30,7 @@ thông qua Command Prompt hoặc PowerShell.
 ## Tải xuống RunBash:
 Tải xuống tại:
 https://github.com/NguyenVuHoangLong2012/RunBash/releases/latest
+Trong trang trên bạn sẽ thấy link RunBash.EXE và ghi chú cập nhật.
 ## Cách cài đặt:
 Sau khi tải xuống tệp RunBash.EXE hãy đưa nó vào System32 hoặc thêm nó vào Path để bạn có thể gọi RunBash.EXE ở bất kì đâu.  
 - Nếu bạn muốn đưa tệp RunBash.EXE vào System32 hãy copy RunBash.EXE và duyệt theo đường dẫn sau:  
@@ -53,10 +58,11 @@ Vậy đã xong.
 - Sử dụng "runbash.exe --help" để hiển thị trợ giúp này.
 - Sử dụng "runbash.exe --about" để hiển thị toàn bộ thông tin.
 - Biến môi trường: RUNBASH_BASH – dùng để chỉ định đường dẫn Bash tùy chỉnh thay vì tự động dò tìm.
+Lưu ý, lần đầu tiên chạy một tệp SH hoặc BASH Windows sẽ hỏi Select an app to open Sh file hoặc Select an app to open BASH file hãy nhấn vào Choose an app on your PC > Duyệt tới tệp RunBash.EXE của bạn > Chọn RunBash.EXE từ danh sách và nhấn Always để Windows không hỏi lại vào lần sau.
 ## Lưu ý về dự án:
 - RunBash không liên quan đến bất kì dự án nào khác trùng tên.
 - Hiện tại RunBash không hỗ trợ WSL nếu bạn sử dụng WSL bạn có thể thử sử dụng công cụ cùng tên này do Benzaria phát triển:
-https://github.com/benzaria/RunBash
+https://github.com/benzaria/RunBash  
 Lưu ý như đã nói ở trên dự án RunBash của Benzaria không liên quan gì đến dự án này.
 - Dự án này được cá nhân tôi phát triển và có thể không còn được phát triển trong tương lai.
 Chương trình này theo giấy phép Mit, xem giấy phép tại:
