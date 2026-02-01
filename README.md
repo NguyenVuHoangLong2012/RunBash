@@ -29,8 +29,8 @@ thông qua Command Prompt hoặc PowerShell.
   https://git-scm.com/download/win
 ## Tải xuống RunBash:
 Tải xuống tại:
-https://github.com/NguyenVuHoangLong2012/RunBash/releases/latest
-Trong trang trên bạn sẽ thấy link RunBash.EXE và ghi chú cập nhật.
+https://github.com/NguyenVuHoangLong2012/RunBash/releases/latest  
+Tại trang trên bạn sẽ thấy link RunBash.EXE và các ghi chú cập nhật.
 ## Bắt đầu nhanh:
 - 1. Cài Git for Windows.
 - 2. Tải RunBash.exe.
