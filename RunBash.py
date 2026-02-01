@@ -39,6 +39,8 @@ def showHelp():
 	print("Environment variables RUNBASH_BASH   Use custom bash path instead of auto-detect.")
 	print("Home page:")
 	print("https://github.com/nguyenvuhoanglong2012/runbash/")
+	print("Download Latest version or see the Release note at:")
+	print("https://github.com/NguyenVuHoangLong2012/RunBash/releases/")
 def bashUsing():
 	if BASH:
 		print("Bash using:")
