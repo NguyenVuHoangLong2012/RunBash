@@ -72,5 +72,11 @@ Lưu ý, lần đầu tiên chạy một tệp SH hoặc BASH Windows sẽ hỏi
 https://github.com/benzaria/RunBash  
 Lưu ý như đã nói ở trên dự án RunBash của Benzaria không liên quan gì đến dự án này.
 - Dự án này được cá nhân tôi phát triển và có thể không còn được phát triển trong tương lai.
-Chương trình này theo giấy phép Mit, xem giấy phép tại:
+- Nhưng nếu bạn biết code và muốn đóng góp tôi luôn luôn sẵn sàng.
+- Chương trình này theo giấy phép Mit, xem giấy phép tại:
 https://github.com/NguyenVuHoangLong2012/RunBash/blob/main/LICENSE
+## Thông tin liên hệ:
+- Email:
+mailto://hoanglongdeptrai392@gmail.com
+- Telegram:
+https://t.me/Long_2012
