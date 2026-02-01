@@ -2,6 +2,7 @@
 Tên: RunBash.  
 Phiên bản: 1.9 (Chính thức).  
 Nền tảng: Windows.  
+Kích thước: 7,99 MB.
 RunBash là một công cụ dòng lệnh viết bằng Python, giúp chạy Bash script (.sh, .bash) trên Windows một cách nhanh gọn mà không cần mở Git Bash thủ công.  
 Chương trình tự động tìm Bash (Git Bash), hỗ trợ login shell, truyền tham số cho script, và cho phép chỉ định đường dẫn Bash bằng biến môi trường RUNBASH_BASH.  
 Lưu ý: Chương trình này phụ thuộc vào tệp "Git_Folder\bin\Bash.EXE" đi kèm trong gói Git For Windows.
@@ -21,10 +22,10 @@ thông qua Command Prompt hoặc PowerShell.
 ## Yêu cầu:
 - Git For Windows.  
   Tải tại:
-  (https://git-scm.com/download/win)
+  https://git-scm.com/download/win
 ## Tải xuống RunBash:
 Tải xuống tại:
-(https://github.com/NguyenVuHoangLong2012/RunBash/releases/latest)
+https://github.com/NguyenVuHoangLong2012/RunBash/releases/latest
 ## Cách cài đặt:
 Sau khi tải xuống tệp RunBash.EXE hãy đưa nó vào System32 hoặc thêm nó vào Path để bạn có thể gọi RunBash.EXE ở bất kì đâu.  
 - Nếu bạn muốn đưa tệp RunBash.EXE vào System32 hãy copy RunBash.EXE và duyệt theo đường dẫn sau:  
@@ -53,6 +54,10 @@ Vậy đã xong.
 - Sử dụng "runbash.exe --about" để hiển thị toàn bộ thông tin.
 - Biến môi trường: RUNBASH_BASH – dùng để chỉ định đường dẫn Bash tùy chỉnh thay vì tự động dò tìm.
 ## Lưu ý về dự án:
-Dự án này được cá nhân tôi phát triển và có thể không còn được phát triển trong tương lai.  
+- RunBash không liên quan đến bất kì dự án nào khác trùng tên.
+- Hiện tại RunBash không hỗ trợ WSL nếu bạn sử dụng WSL bạn có thể thử sử dụng công cụ cùng tên này do Benzaria phát triển:
+https://github.com/benzaria/RunBash
+Lưu ý như đã nói ở trên dự án RunBash của Benzaria không liên quan gì đến dự án này.
+- Dự án này được cá nhân tôi phát triển và có thể không còn được phát triển trong tương lai.
 Chương trình này theo giấy phép Mit, xem giấy phép tại:
-(https://github.com/NguyenVuHoangLong2012/RunBash/blob/main/LICENSE)
+https://github.com/NguyenVuHoangLong2012/RunBash/blob/main/LICENSE
