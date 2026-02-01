@@ -12,7 +12,7 @@ cho phép chạy Bash script (.sh, .bash) trực tiếp
 thông qua Command Prompt hoặc PowerShell.
 ## Tính năng chính:
 - Cho phép click chuột vào trực tiếp các tệp SH hoặc BASH để mở trực tiếp bằng Bash (Git Bash).
-- Làm Windows coi các tệp SH và BASH như các tệp tích hợp.
+- Làm Windows sử lí các tệp SH và BASH tương tự các tệp tích hợp.
 - Đảm bảo môi trường ổn định khi chạy Bash script.
 - Cung cấp các cờ tiền tố để chạy một Bash script nhanh chóng trong Command Prompt hoặc PowerShell.
 - Tự động phát hiện Bash (Git Bash) trên hệ thống.
@@ -31,6 +31,12 @@ thông qua Command Prompt hoặc PowerShell.
 Tải xuống tại:
 https://github.com/NguyenVuHoangLong2012/RunBash/releases/latest
 Trong trang trên bạn sẽ thấy link RunBash.EXE và ghi chú cập nhật.
+## Bắt đầu nhanh:
+- 1. Cài Git for Windows.
+- 2. Tải RunBash.exe.
+- 3. Đặt RunBash.exe vào PATH hoặc System32.
+- 4. Double click .sh hoặc chạy:
+   runbash.exe script.sh
 ## Cách cài đặt:
 Sau khi tải xuống tệp RunBash.EXE hãy đưa nó vào System32 hoặc thêm nó vào Path để bạn có thể gọi RunBash.EXE ở bất kì đâu.  
 - Nếu bạn muốn đưa tệp RunBash.EXE vào System32 hãy copy RunBash.EXE và duyệt theo đường dẫn sau:  
@@ -60,6 +66,7 @@ Vậy đã xong.
 - Biến môi trường: RUNBASH_BASH – dùng để chỉ định đường dẫn Bash tùy chỉnh thay vì tự động dò tìm.
 Lưu ý, lần đầu tiên chạy một tệp SH hoặc BASH Windows sẽ hỏi Select an app to open Sh file hoặc Select an app to open BASH file hãy nhấn vào Choose an app on your PC > Duyệt tới tệp RunBash.EXE của bạn > Chọn RunBash.EXE từ danh sách và nhấn Always để Windows không hỏi lại vào lần sau.
 ## Lưu ý về dự án:
+- Các Bash script nên sử dụng LF, encoding UTF-8 để tương thích tốt nhất với Git Bash.
 - RunBash không liên quan đến bất kì dự án nào khác trùng tên.
 - Hiện tại RunBash không hỗ trợ WSL nếu bạn sử dụng WSL bạn có thể thử sử dụng công cụ cùng tên này do Benzaria phát triển:
 https://github.com/benzaria/RunBash  
