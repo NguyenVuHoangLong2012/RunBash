@@ -77,6 +77,6 @@ Lưu ý như đã nói ở trên dự án RunBash của Benzaria không liên qu
 https://github.com/NguyenVuHoangLong2012/RunBash/blob/main/LICENSE
 ## Thông tin liên hệ:
 - Email:
-mailto://hoanglongdeptrai392@gmail.com
+hoanglongdeptrai392@gmail.com
 - Telegram:
 https://t.me/Long_2012
