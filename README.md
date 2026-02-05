@@ -1,9 +1,9 @@
 # RunBash:
 Tên: RunBash.  
 Tác giả: Nguyễn Vũ Hoàng Long.  
-Phiên bản: 1.9 (Chính thức).  
+Phiên bản: 2.0 (Chính thức).  
 Nền tảng: Windows.  
-Kích thước: 7,99 MB.
+Kích thước: 7,99 MB.  
 RunBash là một công cụ dòng lệnh viết bằng Python, giúp chạy Bash script (.sh, .bash) trên Windows một cách nhanh gọn mà không cần mở Git Bash thủ công.  
 Chương trình tự động tìm Bash (Git Bash), hỗ trợ login shell, truyền tham số cho script, và cho phép chỉ định đường dẫn Bash bằng biến môi trường RUNBASH_BASH.  
 Lưu ý: Chương trình này phụ thuộc vào tệp "Git_Folder\bin\Bash.EXE" đi kèm trong gói Git For Windows.
