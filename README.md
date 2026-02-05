@@ -1,5 +1,6 @@
 # RunBash:
 Tên: RunBash.  
+Tác giả: Nguyễn Vũ Hoàng Long.  
 Phiên bản: 1.9 (Chính thức).  
 Nền tảng: Windows.  
 Kích thước: 7,99 MB.
@@ -17,7 +18,8 @@ thông qua Command Prompt hoặc PowerShell.
 - Cung cấp các cờ tiền tố để chạy một Bash script nhanh chóng trong Command Prompt hoặc PowerShell.
 - Tự động phát hiện Bash (Git Bash) trên hệ thống.
 - Hỗ trợ chạy Bash với login shell (-l).
-- Truyền tham số cho Bash script.
+- Hỗ trợ truyền trực tiếp các cờ tiền tố của Bash.EXE.
+- Hỗ trợ truyền tham số cho Bash script.
 - Cho phép chỉ định Bash thủ công bằng biến môi trường RUNBASH_BASH.
 - Trả đúng exit code của Bash script.
 - Không phụ thuộc GUI, nhẹ và đơn giản.
@@ -56,8 +58,7 @@ Nếu bạn sử dụng Git For Windows chuẩn hãy bỏ qua bước này.
 Cuối cùng hãy nhấn OK > OK để đóng tất cả các hộp thoại hiện tại đang mở..  
 Vậy đã xong.
   ## Hướng dẫn sử dụng:
-- Sử dụng "runbash.exe đường_dẫn\script.sh [tham_số...]" hoặc "runbash.exe đường_dẫn\script.bash [tham_số...]" để chạy một Bash script.
-- Sử dụng "runbash.exe --login đường_dẫn\script.sh [tham_số...]" hoặc "runbash.exe --login đường_dẫn\script.bash [tham_số...]" để chạy Bash với login shell.
+- Sử dụng "runbash.exe Cờ Đường_dẫn\script.sh [Tham_số...]" hoặc "runbash.exe Cờ Đường_dẫn\script.bash [Tham_số...]" để chạy Bash với login shell.
 - Sử dụng "runbash.exe --bash-using" để kiểm tra đường dẫn Bash đang được sử dụng.
 - Sử dụng "runbash.exe --environment-variables" để hiển thị các biến môi trường bạn đã thiết lập.
 - Sử dụng "runbash.exe --version" để kiểm tra phiên bản RunBash.
