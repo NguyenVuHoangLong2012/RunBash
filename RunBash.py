@@ -30,6 +30,7 @@ def expand_env(ENV_Value):
 	Expanded = os.path.expandvars(ENV_Value)
 	return Expanded
 def checkENV(ENV_Value):
+	ENV_Value = expand_env(ENV_Value)
 	ENV_Value = os.path.abspath(ENV_Value)
 	if ENV_Value:
 		if os.path.isfile(ENV_Value) and os.access(ENV_Value, os.X_OK):
@@ -50,7 +51,6 @@ def getENV(ENV_Name):
 	for Value in Sources:
 		if not Value:
 			continue
-		Value = expand_env(Value)
 		Value = checkENV(Value)
 		if Value:
 			return Value
@@ -61,9 +61,9 @@ if ENV is None:
 else:
 	BASH = ENV
 def version():
-	print("RunBash version 2.0")
+	print("RunBash version 2.1")
 def showHelp():
-	print("Using \"runbash.exe Flag path\\script.sh [args...] or runbash.exe Flag path\\script.bash [args...]\" to run with login shell.")
+	print("Using \"runbash.exe [flag...] path\\script.sh [args...] or runbash.exe [flag...] path\\script.bash [args...]\" to run with login shell.")
 	print("Using \"runbash.exe --bash-using\" to check Bash path.")
 	print("Using \"runbash.exe --environment-variables\" to show the Environment variables that you have set.")
 	print("Using \"runbash.exe --version\" to check RunBash version.")
@@ -81,20 +81,33 @@ def bashUsing():
 	else:
 		print("Bash not found")
 		sys.exit(2)
-def showEnvironmentVariables():
+def showENV():
 	Environment = getENV("RUNBASH_BASH")
 	if  Environment is None:
 		print("Environment variables:")
 		print("Not set.")
-		sys.exit(2)
 	else:
 		print("Environment variables:")
-		print("RUNBASH_BASH:" + Environment)
+		print("RUNBASH_BASH: " + Environment)
 def about():
 	version()
 	showHelp()
 	bashUsing()
-	showEnvironmentVariables()
+	showENV()
+def setENV(ENV_Name, ENV_Value):
+	ENV_Value_Checked = checkENV(ENV_Value)
+	if ENV_Value_Checked:
+		try:
+			with winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Environment", 0, winreg.KEY_SET_VALUE) as Key:
+				winreg.SetValueEx(Key, ENV_Name, 0, winreg.REG_SZ, ENV_Value_Checked)
+				print(f"Environment variable {ENV_Name} set successfully.")
+				sys.exit(0)
+		except Exception as Error:
+			print("Unable to create or write environment variables: ", Error)
+			sys.exit(2)
+	else:
+		print("Invalid value: " + ENV_Value)
+		sys.exit(2)
 def runBashScript(Win_File, Args, Flag=None):
 	if os.path.isfile(Win_File):
 		if Win_File.lower().endswith((".sh", ".bash")):
@@ -112,17 +125,27 @@ def runBashScript(Win_File, Args, Flag=None):
 					sys.exit(2)
 				RunScript = [BASH]
 				if Flag:
-					RunScript.append(Flag)
+					RunScript += Flag
 				RunScript += [Git_Bash_Path, *Args]
 				Result = subprocess.run(RunScript, check=False, shell=False)
 				sys.exit(Result.returncode)
 		else:
 			print("File is not Bash Script.")
+			print(Win_File)
 			sys.exit(2)
 	else:
 		print("File not found.")
+		print(Win_File)
 		sys.exit(1)
-def stripText(Raw):
+def detectFlag(Flag_List):
+	Flags = []
+	for Flag in Flag_List:
+		if Flag.startswith(("-", "/")):
+			Flags.append(Flag)
+		else:
+			break
+	return Flags
+def stripPath(Raw):
 	if not os.path.isfile(Raw):
 		Clean = Raw.strip()
 		if os.path.isfile(Clean):
@@ -136,7 +159,7 @@ def main():
 		about()
 		sys.exit(0)
 	else:
-		Script = stripText(sys.argv[1])
+		Script = stripPath(sys.argv[1])
 		Args = sys.argv[2:]
 		if Script.lower() == "--version":
 			version()
@@ -148,20 +171,22 @@ def main():
 			bashUsing()
 			sys.exit(0)
 		elif Script.lower() == "--environment-variables":
-			showEnvironmentVariables()
+			showENV()
 			sys.exit(0)
 		elif Script.lower() == "--about":
 			about()
 			sys.exit(0)
-		elif Script[0] == "-" or Script[0] == "/":
+		elif Script.lower() == "--set-bash":
 			if len(sys.argv) < 3:
-				print(f"{Script} missing parameters.")
-				sys.exit(2)
+				print("--set-bash is missing parameters.")
 			else:
-				Flag = sys.argv[1]
-				Script = stripText(Args[0])
-				Args = Args[1:]
-				runBashScript(Script, Args, Flag)
+				setENV("RUNBASH_BASH", sys.argv[2])
+		elif Script[0] in ("-", "/"):
+			Flag = detectFlag(sys.argv[1:])
+			Script_Index = len(Flag) + 1
+			Script = stripPath(sys.argv[Script_Index])
+			Args = sys.argv[Script_Index + 1:]
+			runBashScript(Script, Args, Flag)
 		else:
 			runBashScript(Script, Args, None)
 if __name__ == "__main__":
