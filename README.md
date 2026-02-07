@@ -61,7 +61,7 @@ Vậy đã xong.
 - Sử dụng "runbash.exe [cờ...] đường_dẫn\script.sh [tham_số...]" hoặc "runbash.exe [cờ...] đường_dẫn\script.bash [tham_số...]" để chạy Bash với login shell.
 - Sử dụng "runbash.exe --bash-using" để kiểm tra đường dẫn Bash đang được sử dụng.
 - Sử dụng "runbash.exe --show-env" để hiển thị các biến môi trường bạn đã thiết lập.
-- Sử dụng "runbash.exe --set-env đường_dẫn\bash" để đặt biến môi trường RUNBASH_BASH trong chính chương trình.
+- Sử dụng "runbash.exe --set-env đường_dẫn_tới_bash.exe" để đặt biến môi trường RUNBASH_BASH trong chính chương trình.
 - Sử dụng "runbash.exe --delete-env" để xóa biến môi trường RUNBASH_BASH trong chính chương trình.
 - Sử dụng "runbash.exe --version" để kiểm tra phiên bản RunBash.
 - Sử dụng "runbash.exe --help" để hiển thị trợ giúp này.
