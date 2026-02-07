@@ -1,1 +1,39 @@
+body {
+	font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+	background: #0d1117;
+	color: #e6edf3;
+	line-height: 1.6;
+	margin: 0;
+	padding: 0;
+}
+
+main {
+	max-width: 900px;
+	margin: auto;
+	padding: 1.5rem;
+}
+
+h1, h2 {
+	border-bottom: 1px solid #30363d;
+	padding-bottom: 0.3rem;
+}
+
+a {
+	color: #58a6ff;
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+code {
+	background: #161b22;
+	padding: 0.15em 0.35em;
+	border-radius: 4px;
+}
+
+ul, ol {
+	padding-left: 1.5rem;
+}
 
