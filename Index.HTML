@@ -1,1 +1,113 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>RunBash</title>
+	<link rel="stylesheet" href="style.css">
+</head>
+<body>
+	<main>
+		<h1>RunBash</h1>
+
+		<p><strong>Tên:</strong> RunBash.</p>
+		<p><strong>Tác giả:</strong> Nguyễn Vũ Hoàng Long.</p>
+		<p><strong>Phiên bản:</strong> 2.1 (Chính thức).</p>
+		<p><strong>Nền tảng:</strong> Windows.</p>
+		<p><strong>Kích thước:</strong> 8,00 MB.</p>
+
+		<p>
+			RunBash là một công cụ dòng lệnh viết bằng Python, giúp chạy Bash script
+			(<code>.sh</code>, <code>.bash</code>) trên Windows một cách nhanh gọn
+			mà không cần mở Git Bash thủ công.
+		</p>
+
+		<p>
+			Chương trình tự động tìm Bash (Git Bash), hỗ trợ login shell,
+			truyền tham số cho script, và cho phép chỉ định đường dẫn Bash
+			bằng biến môi trường <code>RUNBASH_BASH</code>.
+		</p>
+
+		<p>
+			<strong>Lưu ý:</strong> Chương trình này phụ thuộc vào tệp
+			<code>Git_Folder\bin\Bash.EXE</code> đi kèm trong gói Git For Windows.
+		</p>
+
+		<h2>Mô tả</h2>
+		<p>
+			RunBash là một CLI tool dành cho Windows, cho phép chạy Bash script
+			(<code>.sh</code>, <code>.bash</code>) trực tiếp thông qua
+			Command Prompt hoặc PowerShell.
+		</p>
+
+		<h2>Tính năng chính</h2>
+		<ul>
+			<li>Cho phép click chuột vào trực tiếp các tệp SH hoặc BASH để mở trực tiếp bằng Bash (Git Bash).</li>
+			<li>Làm Windows xử lí các tệp SH và BASH tương tự các tệp tích hợp.</li>
+			<li>Đảm bảo môi trường ổn định khi chạy Bash script.</li>
+			<li>Cung cấp các cờ tiền tố để chạy một Bash script nhanh chóng trong Command Prompt hoặc PowerShell.</li>
+			<li>Tự động phát hiện Bash (Git Bash) trên hệ thống.</li>
+			<li>Hỗ trợ chạy Bash với login shell (-l).</li>
+			<li>Hỗ trợ truyền trực tiếp các cờ tiền tố của Bash.EXE.</li>
+			<li>Hỗ trợ truyền tham số cho Bash script.</li>
+			<li>Cho phép chỉ định Bash thủ công bằng biến môi trường RUNBASH_BASH.</li>
+			<li>Trả đúng exit code của Bash script.</li>
+			<li>Không phụ thuộc GUI, nhẹ và đơn giản.</li>
+			<li>Ưu tiên cách gọi trực tiếp Bash script để giữ hành vi tương tự Git Bash.</li>
+			<li>Tối ưu trải nghiệm người dùng để có trải nghiệm tốt nhất có thể.</li>
+		</ul>
+
+		<h2>Yêu cầu</h2>
+		<ul>
+			<li>Git For Windows</li>
+		</ul>
+		<p>
+			Tải tại:
+			<a href="https://git-scm.com/download/win">https://git-scm.com/download/win</a>
+		</p>
+
+		<h2>Tải xuống RunBash</h2>
+		<p>
+			Tải xuống tại:
+			<a href="https://github.com/NguyenVuHoangLong2012/RunBash/releases/latest">
+				GitHub Releases
+			</a>
+		</p>
+
+		<h2>Bắt đầu nhanh</h2>
+		<ol>
+			<li>Cài Git for Windows.</li>
+			<li>Tải RunBash.exe.</li>
+			<li>Đặt RunBash.exe vào PATH hoặc System32.</li>
+			<li>Double click .sh hoặc chạy: <code>runbash.exe script.sh</code></li>
+		</ol>
+
+		<h2>Hướng dẫn sử dụng</h2>
+		<ul>
+			<li><code>runbash.exe [cờ...] đường_dẫn\script.sh [tham_số...]</code></li>
+			<li><code>runbash.exe --bash-using</code></li>
+			<li><code>runbash.exe --environment-variables</code></li>
+			<li><code>runbash.exe -set-bash đường_dẫn_bash</code></li>
+			<li><code>runbash.exe --version</code></li>
+			<li><code>runbash.exe --help</code></li>
+			<li><code>runbash.exe --about</code></li>
+		</ul>
+
+		<h2>Lưu ý về dự án</h2>
+		<ul>
+			<li>Các Bash script nên sử dụng LF, encoding UTF-8.</li>
+			<li>RunBash không liên quan đến dự án cùng tên khác.</li>
+			<li>Dự án được phát triển cá nhân và có thể ngừng phát triển.</li>
+			<li>Luôn sẵn sàng nhận đóng góp nếu bạn biết code.</li>
+			<li>Giấy phép MIT.</li>
+		</ul>
+
+		<h2>Thông tin liên hệ</h2>
+		<ul>
+			<li>Email: <a href="mailto:hoanglongdeptrai392@gmail.com">hoanglongdeptrai392@gmail.com</a></li>
+			<li>Telegram: <a href="https://t.me/Long_2012">@Long_2012</a></li>
+		</ul>
+	</main>
+</body>
+</html>
 
