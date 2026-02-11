@@ -5,6 +5,13 @@ import shutil
 import pathlib
 import winreg
 import enum
+def get_registry_value(root, path, name):
+	try:
+		with winreg.OpenKey(root, path) as key:
+			value, _ = winreg.QueryValueEx(key, name)
+			return value
+	except FileNotFoundError:
+		return None
 def findBash():
 	candidates = [
 		r"C:\Program Files\Git\bin\bash.exe",
@@ -12,6 +19,9 @@ def findBash():
 		r"C:\Program Files (x86)\Git\bin\bash.exe",
 		r"C:\Program Files (x86)\Git\usr\bin\bash.exe",
 	]
+	Git_For_Windows = get_registry_value(winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\GitForWindows", "InstallPath")
+	if Git_For_Windows:
+		candidates.append(os.path.join(Git_For_Windows, r"bin\bash.exe"))
 	Bash = shutil.which("bash")
 	if Bash:
 		return Bash
@@ -19,13 +29,6 @@ def findBash():
 		for path in candidates:
 			if os.path.isfile(path):
 				return path
-		return None
-def get_registry_value(root, path, name):
-	try:
-		with winreg.OpenKey(root, path) as key:
-			value, _ = winreg.QueryValueEx(key, name)
-			return value
-	except FileNotFoundError:
 		return None
 def expand_env(ENV_Value):
 	Expanded = os.path.expandvars(ENV_Value)
@@ -55,18 +58,19 @@ def getENV(ENV_Name):
 		if Value:
 			return Value
 	return None
-ENV = getENV("RUNBASH_BASH")
-if ENV is None:
-	BASH = findBash()
-else:
-	BASH = ENV
+def getBASH():
+	ENV = getENV("RUNBASH_BASH")
+	if ENV is None:
+		return findBash()
+	else:
+		return ENV
 class RegValueStatus(enum.Enum):
 	EXISTS = enum.auto()
 	NOT_FOUND = enum.auto()
 	NO_PERMISSION = enum.auto()
 	ERROR = enum.auto()
 def version():
-	print("RunBash version 2.1")
+	print("RunBash version 2.3")
 def showHelp():
 	print("Using \"runbash.exe [flag...] path\\script.sh [args...] or runbash.exe [flag...] path\\script.bash [args...]\" to run with login shell.")
 	print("Using \"runbash.exe --bash-using\" to check Bash path.")
@@ -82,6 +86,7 @@ def showHelp():
 	print("Download Latest version or see the Release note as:")
 	print("https://github.com/NguyenVuHoangLong2012/RunBash/releases/")
 def bashUsing():
+	BASH = getBASH()
 	if BASH:
 		print("Bash using:")
 		print(BASH)
@@ -153,6 +158,7 @@ def deleteENV():
 	print("RUNBASH_BASH not found.")
 	sys.exit(1)
 def runBashScript(Win_File, Args, Flag=None):
+	BASH = getBASH()
 	if os.path.isfile(Win_File):
 		if Win_File.lower().endswith((".sh", ".bash")):
 			if BASH is None:
@@ -170,6 +176,8 @@ def runBashScript(Win_File, Args, Flag=None):
 				RunScript = [BASH]
 				if Flag:
 					RunScript += Flag
+				else:
+					RunScript.append("-l")
 				RunScript += [Git_Bash_Path, *Args]
 				Result = subprocess.run(RunScript, check=False, shell=False)
 				sys.exit(Result.returncode)
@@ -227,9 +235,16 @@ def main():
 				setENV("RUNBASH_BASH", sys.argv[2])
 		elif Script.lower() == "--delete-env":
 			deleteENV()
-		elif Script[0] in ("-", "/"):
+		elif Script.startswith(("-", "/")):
 			Flag = detectFlag(sys.argv[1:])
 			Script_Index = len(Flag) + 1
+			if len(sys.argv) <= Script_Index:
+				BASH = getBASH()
+				if BASH is None:
+					print("Bash not found.")
+					sys.exit(127)
+				Result = subprocess.run([BASH, *Flag], check=False, shell=False)
+				sys.exit(Result.returncode)
 			Script = stripPath(sys.argv[Script_Index])
 			Args = sys.argv[Script_Index + 1:]
 			runBashScript(Script, Args, Flag)
