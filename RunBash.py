@@ -10,7 +10,7 @@ def get_registry_value(root, path, name):
 		with winreg.OpenKey(root, path) as key:
 			value, _ = winreg.QueryValueEx(key, name)
 			return value
-	except FileNotFoundError:
+	except Exception:
 		return None
 def findBash():
 	candidates = [
@@ -22,7 +22,10 @@ def findBash():
 	Git_For_Windows = get_registry_value(winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\GitForWindows", "InstallPath")
 	if Git_For_Windows:
 		candidates.append(os.path.join(Git_For_Windows, r"bin\bash.exe"))
-	Bash = shutil.which("bash")
+	try:
+		Bash = shutil.which("bash")
+	except Exception:
+		Bash = None
 	if Bash:
 		return Bash
 	else:
@@ -31,20 +34,26 @@ def findBash():
 				return path
 		return None
 def expand_env(ENV_Value):
-	Expanded = os.path.expandvars(ENV_Value)
-	return Expanded
+	try:
+		Expanded = os.path.expandvars(str(ENV_Value))
+		return Expanded
+	except Exception:
+		return ENV_Value
 def checkENV(ENV_Value):
-	ENV_Value = expand_env(ENV_Value)
-	ENV_Value = os.path.abspath(ENV_Value)
-	if ENV_Value:
-		if os.path.isfile(ENV_Value) and os.access(ENV_Value, os.X_OK):
-			if os.path.basename(ENV_Value).lower() == "bash.exe":
-				return ENV_Value
+	try:
+		ENV_Value = expand_env(ENV_Value)
+		ENV_Value = os.path.abspath(ENV_Value)
+		if ENV_Value:
+			if os.path.isfile(ENV_Value) and os.access(ENV_Value, os.X_OK):
+				if os.path.basename(ENV_Value).lower() == "bash.exe":
+					return ENV_Value
+				else:
+					return None
 			else:
 				return None
 		else:
 			return None
-	else:
+	except Exception:
 		return None
 def getENV(ENV_Name):
 	Sources = [
@@ -70,7 +79,7 @@ class RegValueStatus(enum.Enum):
 	NO_PERMISSION = enum.auto()
 	ERROR = enum.auto()
 def version():
-	print("RunBash version 2.3")
+	print("RunBash version 2.4")
 def showHelp():
 	print("Using \"runbash.exe [flag...] path\\script.sh [args...] or runbash.exe [flag...] path\\script.bash [args...]\" to run with login shell.")
 	print("Using \"runbash.exe --bash-using\" to check Bash path.")
@@ -179,8 +188,12 @@ def runBashScript(Win_File, Args, Flag=None):
 				else:
 					RunScript.append("-l")
 				RunScript += [Git_Bash_Path, *Args]
-				Result = subprocess.run(RunScript, check=False, shell=False)
-				sys.exit(Result.returncode)
+				try:
+					Result = subprocess.run(RunScript, check=False, shell=False)
+					sys.exit(Result.returncode)
+				except Exception as Error:
+					print("Error, an unknown error occurred: ", Error)
+					sys.exit(127)
 		else:
 			print("File is not Bash Script.")
 			print(Win_File)
@@ -198,57 +211,65 @@ def detectFlag(Flag_List):
 			break
 	return Flags
 def stripPath(Raw):
-	if not os.path.isfile(Raw):
-		Clean = Raw.strip()
-		if os.path.isfile(Clean):
-			return Clean
+	try:
+		if not os.path.isfile(Raw):
+			Clean = Raw.strip()
+			if os.path.isfile(Clean):
+				return Clean
+			else:
+				return Raw
 		else:
 			return Raw
-	else:
+	except Exception:
 		return Raw
 def main():
-	if len(sys.argv) < 2:
-		about()
-		sys.exit(0)
-	else:
-		Script = stripPath(sys.argv[1])
-		Args = sys.argv[2:]
-		if Script.lower() == "--version":
-			version()
-			sys.exit(0)
-		elif Script.lower() == "--help":
-			showHelp()
-			sys.exit(0)
-		elif Script.lower() == "--bash-using":
-			bashUsing()
-			sys.exit(0)
-		elif Script.lower() == "--show-env":
-			showENV()
-			sys.exit(0)
-		elif Script.lower() == "--about":
+	try:
+		if len(sys.argv) < 2:
 			about()
 			sys.exit(0)
-		elif Script.lower() == "--set-env":
-			if len(sys.argv) < 3:
-				print("--set-env is missing parameters.")
-			else:
-				setENV("RUNBASH_BASH", sys.argv[2])
-		elif Script.lower() == "--delete-env":
-			deleteENV()
-		elif Script.startswith(("-", "/")):
-			Flag = detectFlag(sys.argv[1:])
-			Script_Index = len(Flag) + 1
-			if len(sys.argv) <= Script_Index:
-				BASH = getBASH()
-				if BASH is None:
-					print("Bash not found.")
-					sys.exit(127)
-				Result = subprocess.run([BASH, *Flag], check=False, shell=False)
-				sys.exit(Result.returncode)
-			Script = stripPath(sys.argv[Script_Index])
-			Args = sys.argv[Script_Index + 1:]
-			runBashScript(Script, Args, Flag)
 		else:
-			runBashScript(Script, Args, None)
+			Script = stripPath(sys.argv[1])
+			Args = sys.argv[2:]
+			if Script.lower() == "--version":
+				version()
+				sys.exit(0)
+			elif Script.lower() == "--help":
+				showHelp()
+				sys.exit(0)
+			elif Script.lower() == "--bash-using":
+				bashUsing()
+				sys.exit(0)
+			elif Script.lower() == "--show-env":
+				showENV()
+				sys.exit(0)
+			elif Script.lower() == "--about":
+				about()
+				sys.exit(0)
+			elif Script.lower() == "--set-env":
+				if len(sys.argv) < 3:
+					print("--set-env is missing parameters.")
+					sys.exit(2)
+				else:
+					setENV("RUNBASH_BASH", sys.argv[2])
+			elif Script.lower() == "--delete-env":
+				deleteENV()
+			elif Script.startswith(("-", "/")):
+				Flag = detectFlag(sys.argv[1:])
+				Script_Index = len(Flag) + 1
+				if len(sys.argv) <= Script_Index:
+					BASH = getBASH()
+					if BASH is None:
+						print("Bash not found.")
+						sys.exit(127)
+					Result = subprocess.run([BASH, *Flag], check=False, shell=False)
+					sys.exit(Result.returncode)
+				Script = stripPath(sys.argv[Script_Index])
+				Args = sys.argv[Script_Index + 1:]
+				runBashScript(Script, Args, Flag)
+			else:
+				runBashScript(Script, Args, None)
+	except Exception as Error:
+		print("Fatal error: ", Error)
+		sys.exit(127)
 if __name__ == "__main__":
 	main()
