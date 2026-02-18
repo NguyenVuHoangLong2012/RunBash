@@ -79,7 +79,7 @@ class RegValueStatus(enum.Enum):
 	NO_PERMISSION = enum.auto()
 	ERROR = enum.auto()
 def version():
-	print("RunBash version 2.4")
+	print("RunBash version 2.5")
 def showHelp():
 	print("Using \"runbash.exe [flag...] path\\script.sh [args...] or runbash.exe [flag...] path\\script.bash [args...]\" to run with login shell.")
 	print("Using \"runbash.exe --bash-using\" to check Bash path.")
@@ -145,14 +145,28 @@ def delete_value(Root, Path, Value_Name):
 		with winreg.OpenKey(Root, Path, 0, winreg.KEY_SET_VALUE) as Key:
 			winreg.DeleteValue(Key, Value_Name)
 			return None
-	except Exception as Error:
-		return Error
-def check_value_deleted(Result):
+	except FileNotFoundError:
+		return RegValueStatus.NOT_FOUND
+	except PermissionError:
+		return RegValueStatus.NO_PERMISSION
+	except Exception:
+		return RegValueStatus.ERROR
+def check_value_deleted(Result, Root):
 	if Result is None:
 		print("RUNBASH_BASH deleted successfully.")
 		sys.exit(0)
+	elif Result == RegValueStatus.NO_PERMISSION:
+		if Root == winreg.HKEY_LOCAL_MACHINE:
+			print("Permission denied: Administrator rights required to delete RUNBASH_BASH.")
+			sys.exit(2)
+		else:
+			print("Permission denied.")
+			sys.exit(2)
+	elif Result == RegValueStatus.NOT_FOUND:
+		return None
 	else:
 		print("Error, cannot delete RUNBASH_BASH: ", Result)
+		sys.exit(2)
 def deleteENV():
 	Targets = [
 		(winreg.HKEY_CURRENT_USER, r"Environment"),
@@ -163,7 +177,7 @@ def deleteENV():
 		if Status != RegValueStatus.EXISTS:
 			continue
 		Result = delete_value(Root, Path, "RUNBASH_BASH")
-		check_value_deleted(Result)
+		check_value_deleted(Result, Root)
 	print("RUNBASH_BASH not found.")
 	sys.exit(1)
 def runBashScript(Win_File, Args, Flag=None):
@@ -261,8 +275,12 @@ def main():
 					if BASH is None:
 						print("Bash not found.")
 						sys.exit(127)
-					Result = subprocess.run([BASH, *Flag], check=False, shell=False)
-					sys.exit(Result.returncode)
+					try:
+						Result = subprocess.run([BASH, *Flag], check=False, shell=False)
+						sys.exit(Result.returncode)
+					except Exception as Error:
+						print("Error, an unknown error occurred: ", Error)
+						sys.exit(127)
 				Script = stripPath(sys.argv[Script_Index])
 				Args = sys.argv[Script_Index + 1:]
 				runBashScript(Script, Args, Flag)
