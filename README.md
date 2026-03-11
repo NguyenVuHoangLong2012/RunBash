@@ -1,7 +1,7 @@
 # RunBash:
 Tên: RunBash.  
 Tác giả: Nguyễn Vũ Hoàng Long.  
-Phiên bản: 2.5 (Chính thức).  
+Phiên bản: 2.6 (Chính thức).  
 Nền tảng: Windows.  
 Kích thước: 8,00 MB.  
 RunBash là một công cụ dòng lệnh viết bằng Python, giúp chạy Bash script (.sh, .bash) trên Windows một cách nhanh gọn mà không cần mở Git Bash thủ công.  
@@ -48,7 +48,7 @@ Sau khi vào System32 hãy gián RunBash.EXE vào.
 Nhấn Windows + R > Gõ sysdm.cpl.  
 Sau khi hộp thoại System Properties mở ra hãy chuyển sang tab Advanced.  
 Tiếp theo hãy chọn tùy chọn Environment Variables... để mở hộp thoại Environment Variables.  
-Ở khung System Variables bên phải, hãy kéo xuống cho tới khi thấy Path, sau khi thấy nhấn Edit.  
+Ở khung System Variables bên phải, hãy kéo xuống cho tới khi thấy Path, sau khi thấy nhấn Edit. 
 Sau khi nhấn Edit bạn sẽ thấy một danh sách đường dẫn hiện ra, nhấn new và nhập đường dẫn của thư mục mà bạn đang đặt tệp RunBash.EXE.  
 Sau khi nhập xong hãy nhấn Enter > OK để đóng hộp thoại Environment variables.  
 - Nếu bạn sử dụng Git For Windows portable hoặc muốn sử dụng một bản Bash.EXE khác ở bước này hãy nhấn vào New ở một trong hai khung User variables hoặc System variables, ở ô Variable name hãy nhập tên biến môi trường này là RUNBASH_BASH và ở ô Variable value hãy nhập đường dẫn tới tệp "Git_Folder\bin\Bash.EXE" mà bạn muốn chương trình sử dụng mặc định hoặc nhấn vào Browse File... để duyệt tới file đó.  
@@ -66,6 +66,8 @@ Vậy đã xong.
 - Sử dụng "runbash.exe --version" để kiểm tra phiên bản RunBash.
 - Sử dụng "runbash.exe --help" để hiển thị trợ giúp này.
 - Sử dụng "runbash.exe --about" để hiển thị toàn bộ thông tin.
+- Sử dụng "runbash.exe --upgrade" hoặc "runbash.exe --upgrade save_folder_path" để kiểm tra và tải xuống phiên bản RunBash mới nhất nếu có..
+Lưu ý, nếu bạn không truyền tham số Save_Folder_Path cho --upgrade thì tệp exe đã tải xuống sẽ được lưu trong %TEMP%.
 - Biến môi trường: RUNBASH_BASH – dùng để chỉ định đường dẫn Bash tùy chỉnh thay vì tự động dò tìm.
 Lưu ý, lần đầu tiên chạy một tệp SH hoặc BASH Windows sẽ hỏi Select an app to open Sh file hoặc Select an app to open BASH file hãy nhấn vào Choose an app on your PC > Duyệt tới tệp RunBash.EXE của bạn > Chọn RunBash.EXE từ danh sách và nhấn Always để Windows không hỏi lại vào lần sau.
 ## Lưu ý về dự án:
