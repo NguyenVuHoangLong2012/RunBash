@@ -15,6 +15,18 @@ class RegValueStatus(enum.Enum):
 	NOT_FOUND = enum.auto()
 	NO_PERMISSION = enum.auto()
 	ERROR = enum.auto()
+def stripPath(Raw):
+	try:
+		if not os.path.isfile(Raw):
+			Clean = Raw.strip()
+			if os.path.isfile(Clean):
+				return os.path.abspath(Clean)
+			else:
+				return os.path.abspath(Raw)
+		else:
+			return os.path.abspath(Raw)
+	except Exception:
+		return os.path.abspath(Raw)
 def get_registry_value(root, path, name):
 	try:
 		with winreg.OpenKey(root, path) as key:
@@ -45,13 +57,14 @@ def findBash():
 		return None
 def expand_env(ENV_Value):
 	try:
-		Expanded = os.path.expandvars(str(ENV_Value))
+		Expanded = os.path.normpath(os.path.expandvars(stripPath(str(ENV_Value))))
 		return Expanded
 	except Exception:
 		return ENV_Value
 def checkENV(ENV_Value):
 	try:
 		ENV_Value = expand_env(ENV_Value)
+		ENV_Value = os.path.expandvars(ENV_Value)
 		ENV_Value = os.path.abspath(ENV_Value)
 		if ENV_Value:
 			if os.path.isfile(ENV_Value) and os.access(ENV_Value, os.X_OK):
@@ -84,7 +97,7 @@ def getBASH():
 	else:
 		return ENV
 def getCurrentVersion():
-	return "2.6"
+	return "2.7"
 def showVersion():
 	print(f"RunBash version {getCurrentVersion()}")
 	print("")
@@ -211,6 +224,7 @@ def runBashScript(Win_File, Args, Flag=None):
 				sys.exit(127)
 			else:	
 				Win_Path = os.path.abspath(Win_File)
+				Win_Path = os.path.normpath(Win_Path)
 				Win_Path = pathlib.PureWindowsPath(Win_Path)
 				if Win_Path.drive:
 					Drive = Win_Path.drive[0].lower()
@@ -246,19 +260,6 @@ def detectFlag(Flag_List):
 		else:
 			break
 	return Flags
-def stripPath(Raw):
-	try:
-		Raw = os.path.abspath(Raw)
-		if not os.path.isfile(Raw):
-			Clean = Raw.strip()
-			if os.path.isfile(Clean):
-				return Clean
-			else:
-				return Raw
-		else:
-			return Raw
-	except Exception:
-		return Raw
 def getLatestVersion():
 	UserName = "nguyenvuhoanglong2012"
 	RepoName = "RunBash"
@@ -328,6 +329,8 @@ def downloadUpdate(URL, Name, Size, DefaultSaveFolder=True, SaveFolder=None):
 			if not SaveFolder:
 				print("Invalid save folder.")
 				sys.exit(1)
+		SaveFolder = os.path.abspath(SaveFolder)
+		SaveFolder = os.path.normpath(SaveFolder)
 		if os.path.isdir(SaveFolder):
 			SavePath = os.path.join(SaveFolder, Name)
 		else:
@@ -355,35 +358,51 @@ def downloadUpdate(URL, Name, Size, DefaultSaveFolder=True, SaveFolder=None):
 				sys.exit(2)
 			os.remove(SavePath)
 		sys.exit(2)
+def getCurrentEXE():
+	if getattr(sys, "frozen", False):
+		return sys.executable
+	else:
+		return None
 def update(UpdateFile):
 	try:
 		print("Updating...")
 		if not os.path.isfile(UpdateFile):
 			print("Downloaded update file not found.")
 			sys.exit(1)
-		Current_EXE = os.path.abspath(sys.executable)
-		if not os.access(Current_EXE, os.W_OK):
-			print("You need admin rights to do this.")
-			sys.exit(2)
-		TEMP_Folder = os.path.expandvars("%TEMP%")
-		TEMP_Folder = os.path.abspath(TEMP_Folder)
-		TEMP_EXE = os.path.join(TEMP_Folder, os.path.basename(Current_EXE))
-		if os.path.dirname(Current_EXE).lower() == TEMP_Folder.lower():
-			print("Error, you need to run \"RunBash.EXE --upgrade\" in another directory to be able to update.")
-			sys.exit(2)
-		BatchScript = "@echo off && " + " && ".join([
-			"timeout /t 2 >nul",
-			f"move /y \"{Current_EXE}\" \"{TEMP_Folder}\"",
-			f"copy /y \"{UpdateFile}\" \"{Current_EXE}\"",
-			f"if errorlevel 1 move /y \"{TEMP_EXE}\" \"{Current_EXE}\" && exit /b 1",
-			f"del /q /f \"{TEMP_EXE}\"",
-			f"del /q /f \"{UpdateFile}\"",
-			"echo Done.",
-			"echo RunBash updated successfully.",
-			"timeout /t 2 >nul"
-		])
-		subprocess.Popen(["cmd", "/c", BatchScript], close_fds=True)
-		sys.exit(0)
+		Current_EXE = getCurrentEXE()
+		if Current_EXE:
+			Current_EXE = os.path.abspath(sys.executable)
+			if not os.access(Current_EXE, os.W_OK):
+				print("You need admin rights to do this.")
+				sys.exit(2)
+			TEMP_Folder = os.path.expandvars("%TEMP%")
+			TEMP_Folder = os.path.abspath(TEMP_Folder)
+			TEMP_EXE = os.path.join(TEMP_Folder, os.path.basename(Current_EXE))
+			if os.path.dirname(Current_EXE).lower() == TEMP_Folder.lower():
+				print("Error, you need to run \"RunBash.EXE --upgrade\" in another directory to be able to update.")
+				sys.exit(2)
+			BatchScript = "@echo off && " + " && ".join([
+				"timeout /t 2 >nul",
+				f"move /y \"{Current_EXE}\" \"{TEMP_Folder}\"",
+				f"copy /y \"{UpdateFile}\" \"{Current_EXE}\"",
+				f"if errorlevel 1 move /y \"{TEMP_EXE}\" \"{Current_EXE}\" && exit /b 1",
+				f"del /q /f \"{TEMP_EXE}\"",
+				f"del /q /f \"{UpdateFile}\"",
+				"echo Done.",
+				"echo RunBash updated successfully.",
+				"timeout /t 2 >nul"
+			])
+			subprocess.Popen(["cmd", "/c", BatchScript], close_fds=True)
+			sys.exit(0)
+		else:
+			Current_EXE = os.path.abspath(__file__)
+			if not os.path.isfile(Current_EXE):
+				print("Error, cannot update because the original program was not found.")
+				sys.exit(1)
+			shutil.copy(UpdateFile, Current_EXE)
+			os.remove(UpdateFile)
+			print("Done.")
+			sys.exit(0)
 	except Exception as Error:
 		print("Error, unable to update:", Error)
 		sys.exit(2)
