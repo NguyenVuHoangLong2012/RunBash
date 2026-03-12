@@ -97,7 +97,7 @@ def getBASH():
 	else:
 		return ENV
 def getCurrentVersion():
-	return "2.7"
+	return "2.8"
 def showVersion():
 	print(f"RunBash version {getCurrentVersion()}")
 	print("")
@@ -371,19 +371,21 @@ def update(UpdateFile):
 			sys.exit(1)
 		Current_EXE = getCurrentEXE()
 		if Current_EXE:
-			Current_EXE = os.path.abspath(sys.executable)
+			Current_EXE = os.path.abspath(Current_EXE)
 			if not os.access(Current_EXE, os.W_OK):
 				print("You need admin rights to do this.")
 				sys.exit(2)
 			TEMP_Folder = os.path.expandvars("%TEMP%")
 			TEMP_Folder = os.path.abspath(TEMP_Folder)
 			TEMP_EXE = os.path.join(TEMP_Folder, os.path.basename(Current_EXE))
-			if os.path.dirname(Current_EXE).lower() == TEMP_Folder.lower():
+			if os.path.normcase(os.path.dirname(Current_EXE).lower()) == os.path.normcase(TEMP_Folder.lower()):
 				print("Error, you need to run \"RunBash.EXE --upgrade\" in another directory to be able to update.")
 				sys.exit(2)
 			BatchScript = "@echo off && " + " && ".join([
 				"timeout /t 2 >nul",
+				"ping -n 3 127.0.0.1 >nul",
 				f"move /y \"{Current_EXE}\" \"{TEMP_Folder}\"",
+				"if errorlevel 1 exit /b 1",
 				f"copy /y \"{UpdateFile}\" \"{Current_EXE}\"",
 				f"if errorlevel 1 move /y \"{TEMP_EXE}\" \"{Current_EXE}\" && exit /b 1",
 				f"del /q /f \"{TEMP_EXE}\"",
@@ -395,11 +397,18 @@ def update(UpdateFile):
 			subprocess.Popen(["cmd", "/c", BatchScript], close_fds=True)
 			sys.exit(0)
 		else:
-			Current_EXE = os.path.abspath(__file__)
-			if not os.path.isfile(Current_EXE):
+			Current_PY = os.path.abspath(__file__)
+			if not os.path.isfile(Current_PY):
 				print("Error, cannot update because the original program was not found.")
 				sys.exit(1)
-			shutil.copy(UpdateFile, Current_EXE)
+			Current_Dir = os.path.dirname(Current_PY)
+			Target_EXE = os.path.join(Current_Dir, os.path.basename(UpdateFile))
+			if os.path.abspath(UpdateFile) == os.path.abspath(Target_EXE):
+				print("EXE already exists in this directory.")
+				sys.exit(0)
+			print(f"Copying {os.path.basename(UpdateFile)} to: {Target_EXE}")
+			shutil.copy(UpdateFile, Target_EXE)
+			print(f"Removing {UpdateFile}")
 			os.remove(UpdateFile)
 			print("Done.")
 			sys.exit(0)
