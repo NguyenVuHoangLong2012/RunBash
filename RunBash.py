@@ -97,7 +97,7 @@ def getBASH():
 	else:
 		return ENV
 def getCurrentVersion():
-	return "2.8"
+	return "2.9"
 def showVersion():
 	print(f"RunBash version {getCurrentVersion()}")
 	print("")
@@ -319,6 +319,11 @@ def formatSize(Size):
 			Size /= 1024
 	except Exception:
 		return "unknown"
+def getCurrentEXE():
+	if getattr(sys, "frozen", False):
+		return sys.executable
+	else:
+		return None
 def downloadUpdate(URL, Name, Size, DefaultSaveFolder=True, SaveFolder=None):
 	try:
 		SavePath = None
@@ -354,15 +359,13 @@ def downloadUpdate(URL, Name, Size, DefaultSaveFolder=True, SaveFolder=None):
 	except Exception as Error:
 		print("Error, download error:", Error)
 		if SavePath and os.path.exists(SavePath):
-			if SavePath == os.path.abspath(sys.executable):
-				sys.exit(2)
+			Current_EXE = getCurrentEXE()
+			if Current_EXE:
+				Current_EXE = os.path.abspath(Current_EXE)
+				if os.path.normcase(SavePath.lower()) == os.path.normcase(Current_EXE.lower()):
+					sys.exit(2)
 			os.remove(SavePath)
 		sys.exit(2)
-def getCurrentEXE():
-	if getattr(sys, "frozen", False):
-		return sys.executable
-	else:
-		return None
 def update(UpdateFile):
 	try:
 		print("Updating...")
@@ -411,6 +414,7 @@ def update(UpdateFile):
 			print(f"Removing {UpdateFile}")
 			os.remove(UpdateFile)
 			print("Done.")
+			print("RunBash updated successfully.")
 			sys.exit(0)
 	except Exception as Error:
 		print("Error, unable to update:", Error)
