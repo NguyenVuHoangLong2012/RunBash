@@ -10,11 +10,20 @@ import re
 import urllib.request
 import urllib.error
 import socket
+class ENV:
+	def __init__(self, Name, Expand, Description):
+		self.name = Name
+		self.expand = Expand
+		self.description = Description
 class RegValueStatus(enum.Enum):
 	EXISTS = enum.auto()
 	NOT_FOUND = enum.auto()
 	NO_PERMISSION = enum.auto()
 	ERROR = enum.auto()
+ENV_Meta = {
+	"RUNBASH_BASH": ENV("RUNBASH_BASH", True, "Use custom bash path instead of auto-detect."),
+	"RUNBASH_DEFAULTFLAG": ENV("RUNBASH_DEFAULTFLAG", False, "Default flags passed to bash.")
+}
 def stripPath(Raw):
 	try:
 		if not os.path.isfile(Raw):
@@ -50,11 +59,16 @@ def findBash():
 		Bash = None
 	if Bash:
 		return Bash
-	else:
-		for path in candidates:
+	try:
+		Bash = shutil.which("bash.exe")
+	except Exception:
+		Bash = None
+	if Bash:
+		return Bash
+	for path in candidates:
 			if os.path.isfile(path):
 				return path
-		return None
+	return None
 def expand_env(ENV_Value):
 	try:
 		Expanded = os.path.normpath(os.path.expandvars(stripPath(str(ENV_Value))))
@@ -78,7 +92,15 @@ def checkENV(ENV_Value):
 			return None
 	except Exception:
 		return None
+def isENV(ENV_Name):
+	if ENV_Name.upper() not in ENV_Meta:
+		print("Invalid environment variable name.")
+		sys.exit(127)
+	else:
+		return None
 def getENV(ENV_Name):
+	Expand = ENV_Meta[ENV_Name].expand
+	isENV(ENV_Name)
 	Sources = [
 		get_registry_value(winreg.HKEY_CURRENT_USER, r"Environment", ENV_Name),
 		get_registry_value(winreg.HKEY_LOCAL_MACHINE, r"SYSTEM\CurrentControlSet\Control\Session Manager\Environment", ENV_Name)
@@ -86,8 +108,11 @@ def getENV(ENV_Name):
 	for Value in Sources:
 		if not Value:
 			continue
-		Value = checkENV(Value)
-		if Value:
+		if Expand:
+			Value = checkENV(Value)
+			if Value:
+				return Value
+		else:
 			return Value
 	return None
 def getBASH():
@@ -97,7 +122,7 @@ def getBASH():
 	else:
 		return ENV
 def getCurrentVersion():
-	return "2.9"
+	return "3.0"
 def showVersion():
 	print(f"RunBash version {getCurrentVersion()}")
 	print("")
@@ -106,9 +131,9 @@ def showHelp():
 	print("Usage:")
 	print("\"runbash.exe [flag...] path\\script.sh [args...] or runbash.exe [flag...] path\\script.bash [args...]\" to run with login shell.")
 	print("\"runbash.exe --bash-using\" to check Bash path.")
-	print("\"runbash.exe --show-env\" to show the Environment variables that you have set.")
-	print("\"runbash.exe --set-env path_to_bash.exe\" to set the RUNBASH_BASH environment variables in the this program.")
-	print("\"runbash.exe --delete-env\" to delete the RUNBASH_BASH environment variable in the this program.")
+	print("\"runbash.exe --show-env\" to show the all Environment variables or \"runbash.exe --show-env env_name\" to show the a specific Environment variable, if you have set.")
+	print("\"runbash.exe --set-env env_name env_value\" to set the RUNBASH_BASH or RUNBASH_DEFAULTFLAG environment variables in the this program.")
+	print("\"runbash.exe --delete-env env_name\" to delete the RUNBASH_BASH or RUNBASH_DEFAULTFLAG environment variable in the this program.")
 	print("\"runbash.exe --version\" to check RunBash version.")
 	print("\"runbash.exe --help\" to show this help.")
 	print("\"runbash.exe --about\" to show all info.")
@@ -116,7 +141,8 @@ def showHelp():
 	print("Note, if you do not pass the Save_Folder_Path parameter to --upgrade the downloaded exe file will be saved in %TEMP%.")
 	print("")
 	print("Environment variables:")
-	print("Environment variables RUNBASH_BASH   Use custom bash path instead of auto-detect.")
+	for ENV in ENV_Meta.values():
+		print(f"Environment variables {ENV.name}:   {ENV.description}")
 	print("")
 	print("Home page:")
 	print("https://github.com/nguyenvuhoanglong2012/runbash/")
@@ -133,22 +159,37 @@ def bashUsing():
 		print("Bash not found")
 		print("")
 		sys.exit(2)
-def showENV():
-	Environment = getENV("RUNBASH_BASH")
-	if  Environment is None:
-		print("Environment variables:")
-		print("Not set.")
-		print("")
+def showENV(All=True, ENV_Name=None):
+	print("Environment variables:")
+	if All:
+		Found = False
+		for Name in ENV_Meta.values():
+			ENV_Value = getENV(Name.name)
+			if ENV_Value:
+				print(f"{Name.name}: {ENV_Value}")
+				Found = True
+		if not Found:
+			print("Not set.")
+			return None
 	else:
-		print("Environment variables:")
-		print("RUNBASH_BASH: " + Environment)
-		print("")
+		isENV(ENV_Name)
+		ENV_Value = getENV(ENV_Name)
+		if ENV_Value:
+			print(f"{ENV_Name}: {ENV_Value}")
+			return None
+		else:
+			print("Not set.")
+			return None
 def about():
 	showHelp()
 	bashUsing()
 	showENV()
 def setENV(ENV_Name, ENV_Value):
-	ENV_Value_Checked = checkENV(ENV_Value)
+	isENV(ENV_Name)
+	if ENV_Meta[ENV_Name].expand:
+		ENV_Value_Checked = checkENV(ENV_Value)
+	else:
+		ENV_Value_Checked = ENV_Value
 	if ENV_Value_Checked:
 		try:
 			with winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Environment", 0, winreg.KEY_SET_VALUE) as Key:
@@ -199,26 +240,27 @@ def check_value_deleted(Result, Root):
 	else:
 		print("Error, cannot delete RUNBASH_BASH: ", Result)
 		sys.exit(2)
-def deleteENV():
+def deleteENV(ENV_Name):
+	isENV(ENV_Name)
 	Targets = [
 		(winreg.HKEY_CURRENT_USER, r"Environment"),
 		(winreg.HKEY_LOCAL_MACHINE, r"SYSTEM\CurrentControlSet\Control\Session Manager\Environment"),
 	]
 	for Root, Path in Targets:
-		Status = value_exists(Root, Path, "RUNBASH_BASH")
+		Status = value_exists(Root, Path, ENV_Name)
 		if Status == RegValueStatus.NO_PERMISSION:
 			print("Permission denied when accessing environment variables.")
 			sys.exit(2)
 		if Status != RegValueStatus.EXISTS:
 			continue
-		Result = delete_value(Root, Path, "RUNBASH_BASH")
+		Result = delete_value(Root, Path, ENV_Name)
 		check_value_deleted(Result, Root)
-	print("RUNBASH_BASH not found.")
+	print(f"{ENV_Name} not found.")
 	sys.exit(1)
 def runBashScript(Win_File, Args, Flag=None):
 	BASH = getBASH()
 	if os.path.isfile(Win_File):
-		if Win_File.lower().endswith((".sh", ".bash")):
+		if Win_File.lower().endswith((".sh", ".bash", ".zsh", ".bats")):
 			if BASH is None:
 				print("Bash not found.")
 				sys.exit(127)
@@ -236,7 +278,13 @@ def runBashScript(Win_File, Args, Flag=None):
 				if Flag:
 					RunScript += Flag
 				else:
-					RunScript.append("-l")
+					Flags = getENV("RUNBASH_DEFAULTFLAG")
+					if Flags == "*":
+						pass
+					elif Flags:
+						RunScript.extend(passDefaultFlag(Flags))
+					else:
+						RunScript.append("-l")
 				RunScript += [Git_Bash_Path, *Args]
 				try:
 					Result = subprocess.run(RunScript, check=False, shell=False, close_fds=True)
@@ -260,6 +308,8 @@ def detectFlag(Flag_List):
 		else:
 			break
 	return Flags
+def passDefaultFlag(Flags):
+	return [Flag.strip() for Flag in re.split(";", Flags) if Flag.strip()]
 def getLatestVersion():
 	UserName = "nguyenvuhoanglong2012"
 	RepoName = "RunBash"
@@ -475,19 +525,27 @@ def main():
 				bashUsing()
 				sys.exit(0)
 			elif Script.lower() == "--show-env":
-				showENV()
-				sys.exit(0)
+				if len(sys.argv) < 3:
+					showENV(True)
+					sys.exit(0)
+				else:
+					showENV(False, sys.argv[2])
+					sys.exit(0)
 			elif Script.lower() == "--about":
 				about()
 				sys.exit(0)
 			elif Script.lower() == "--set-env":
-				if len(sys.argv) < 3:
+				if len(sys.argv) < 4:
 					print("--set-env is missing parameters.")
 					sys.exit(2)
 				else:
-					setENV("RUNBASH_BASH", sys.argv[2])
+					setENV(sys.argv[2], sys.argv[3])
 			elif Script.lower() == "--delete-env":
-				deleteENV()
+				if len(sys.argv) < 3:
+					print("--delete-env is missing parameters.")
+					sys.exit(2)
+				else:
+					deleteENV(sys.argv[2])
 			elif Script.lower() == "--upgrade":
 				if len(sys.argv) < 3:
 					checkUpdate(DefaultSaveFolder=True)
