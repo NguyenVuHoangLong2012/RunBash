@@ -21,8 +21,8 @@ class RegValueStatus(enum.Enum):
 	NO_PERMISSION = enum.auto()
 	ERROR = enum.auto()
 ENV_Meta = {
-	"RUNBASH_BASH": ENV("RUNBASH_BASH", True, "Use custom bash path instead of auto-detect."),
-	"RUNBASH_DEFAULTFLAG": ENV("RUNBASH_DEFAULTFLAG", False, "Default flags passed to bash.")
+	"RUNBASH_BASH": ENV("RUNBASH_BASH", True, "Use to specify a custom Bash path."),
+	"RUNBASH_DEFAULTFLAG": ENV("RUNBASH_DEFAULTFLAG", False, "Use to setup default flags passed to bash.")
 }
 def stripPath(Raw):
 	try:
