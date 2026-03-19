@@ -26,16 +26,13 @@ ENV_Meta = {
 }
 def stripPath(Raw):
 	try:
-		if not os.path.isfile(Raw):
-			Clean = Raw.strip()
-			if os.path.isfile(Clean):
-				return os.path.abspath(Clean)
-			else:
-				return os.path.abspath(Raw)
+		Clean = Raw.strip().strip('"').strip()
+		if os.path.isfile(Clean):
+			return os.path.abspath(Clean)
 		else:
-			return os.path.abspath(Raw)
+			return Raw
 	except Exception:
-		return os.path.abspath(Raw)
+		return Raw
 def get_registry_value(root, path, name):
 	try:
 		with winreg.OpenKey(root, path) as key:
@@ -43,6 +40,14 @@ def get_registry_value(root, path, name):
 			return value
 	except Exception:
 		return None
+def expand_env(ENV_Value):
+	try:
+		if ENV_Value is None:
+			return None
+		Expanded = os.path.normpath(os.path.expandvars(str(ENV_Value).strip().strip('"')))
+		return Expanded
+	except Exception:
+		return ENV_Value
 def findBash():
 	candidates = [
 		r"C:\Program Files\Git\bin\bash.exe",
@@ -52,77 +57,75 @@ def findBash():
 	]
 	Git_For_Windows = get_registry_value(winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\GitForWindows", "InstallPath")
 	if Git_For_Windows:
-		candidates.append(os.path.join(Git_For_Windows, r"bin\bash.exe"))
+		if isinstance(Git_For_Windows, str):
+			Git_For_Windows = expand_env(Git_For_Windows)
+			candidates.append(os.path.join(Git_For_Windows, r"bin\bash.exe"))
 	try:
 		Bash = shutil.which("bash")
 	except Exception:
 		Bash = None
-	if Bash:
+	if Bash and os.path.isfile(Bash):
 		return Bash
 	try:
 		Bash = shutil.which("bash.exe")
 	except Exception:
 		Bash = None
-	if Bash:
+	if Bash and os.path.isfile(Bash):
 		return Bash
 	for path in candidates:
-			if os.path.isfile(path):
-				return path
+		if os.path.isfile(path):
+			return path
 	return None
-def expand_env(ENV_Value):
-	try:
-		Expanded = os.path.normpath(os.path.expandvars(stripPath(str(ENV_Value))))
-		return Expanded
-	except Exception:
-		return ENV_Value
 def checkENV(ENV_Value):
 	try:
 		ENV_Value = expand_env(ENV_Value)
-		ENV_Value = os.path.expandvars(ENV_Value)
+		if not ENV_Value or not isinstance(ENV_Value, str) or not ENV_Value.strip():
+			return None
 		ENV_Value = os.path.abspath(ENV_Value)
-		if ENV_Value:
-			if os.path.isfile(ENV_Value) and os.access(ENV_Value, os.X_OK):
-				if os.path.basename(ENV_Value).lower() == "bash.exe":
-					return ENV_Value
-				else:
-					return None
+		if not os.path.exists(ENV_Value):
+			return None
+		if os.path.isfile(ENV_Value) and ENV_Value.lower().endswith(".exe"):
+			if os.path.basename(ENV_Value).lower() == "bash.exe":
+				return ENV_Value
 			else:
 				return None
 		else:
 			return None
 	except Exception:
 		return None
-def isENV(ENV_Name):
-	if ENV_Name.upper() not in ENV_Meta:
+def validateENV(ENV_Name):
+	ENV_Name = ENV_Name.upper()
+	if ENV_Name not in ENV_Meta:
 		print("Invalid environment variable name.")
 		sys.exit(127)
 	else:
-		return None
+		return ENV_Name
 def getENV(ENV_Name):
+	ENV_Name = validateENV(ENV_Name)
 	Expand = ENV_Meta[ENV_Name].expand
-	isENV(ENV_Name)
 	Sources = [
 		get_registry_value(winreg.HKEY_CURRENT_USER, r"Environment", ENV_Name),
 		get_registry_value(winreg.HKEY_LOCAL_MACHINE, r"SYSTEM\CurrentControlSet\Control\Session Manager\Environment", ENV_Name)
 	]	
 	for Value in Sources:
-		if not Value:
+		if Value is None:
 			continue
 		if Expand:
 			Value = checkENV(Value)
 			if Value:
 				return Value
 		else:
-			return Value
+			if isinstance(Value, str) and Value.strip():
+				return Value
 	return None
 def getBASH():
-	ENV = getENV("RUNBASH_BASH")
-	if ENV is None:
+	ENV_Value = getENV("RUNBASH_BASH")
+	if ENV_Value is None:
 		return findBash()
 	else:
-		return ENV
+		return ENV_Value
 def getCurrentVersion():
-	return "3.0"
+	return "3.1"
 def showVersion():
 	print(f"RunBash version {getCurrentVersion()}")
 	print("")
@@ -141,8 +144,8 @@ def showHelp():
 	print("Note, if you do not pass the Save_Folder_Path parameter to --upgrade the downloaded exe file will be saved in %TEMP%.")
 	print("")
 	print("Environment variables:")
-	for ENV in ENV_Meta.values():
-		print(f"Environment variables {ENV.name}:   {ENV.description}")
+	for ENV_Name in ENV_Meta.values():
+		print(f"Environment variables {ENV_Name.name}:   {ENV_Name.description}")
 	print("")
 	print("Home page:")
 	print("https://github.com/nguyenvuhoanglong2012/runbash/")
@@ -172,7 +175,7 @@ def showENV(All=True, ENV_Name=None):
 			print("Not set.")
 			return None
 	else:
-		isENV(ENV_Name)
+		ENV_Name = validateENV(ENV_Name)
 		ENV_Value = getENV(ENV_Name)
 		if ENV_Value:
 			print(f"{ENV_Name}: {ENV_Value}")
@@ -185,7 +188,7 @@ def about():
 	bashUsing()
 	showENV()
 def setENV(ENV_Name, ENV_Value):
-	isENV(ENV_Name)
+	ENV_Name = validateENV(ENV_Name)
 	if ENV_Meta[ENV_Name].expand:
 		ENV_Value_Checked = checkENV(ENV_Value)
 	else:
@@ -224,13 +227,13 @@ def delete_value(Root, Path, Value_Name):
 		return RegValueStatus.NO_PERMISSION
 	except Exception:
 		return RegValueStatus.ERROR
-def check_value_deleted(Result, Root):
+def check_value_deleted(Result, Root, ENV_Name):
 	if Result is None:
-		print("RUNBASH_BASH deleted successfully.")
+		print(f"{ENV_Name} deleted successfully.")
 		sys.exit(0)
 	elif Result == RegValueStatus.NO_PERMISSION:
 		if Root == winreg.HKEY_LOCAL_MACHINE:
-			print("Permission denied: Administrator rights required to delete RUNBASH_BASH.")
+			print(f"Permission denied: Administrator rights required to delete {ENV_Name}.")
 			sys.exit(2)
 		else:
 			print("Permission denied.")
@@ -238,23 +241,27 @@ def check_value_deleted(Result, Root):
 	elif Result == RegValueStatus.NOT_FOUND:
 		return None
 	else:
-		print("Error, cannot delete RUNBASH_BASH: ", Result)
+		print(f"Error, cannot delete {ENV_Name}: {Result}")
 		sys.exit(2)
 def deleteENV(ENV_Name):
-	isENV(ENV_Name)
+	ENV_Name = validateENV(ENV_Name)
 	Targets = [
 		(winreg.HKEY_CURRENT_USER, r"Environment"),
 		(winreg.HKEY_LOCAL_MACHINE, r"SYSTEM\CurrentControlSet\Control\Session Manager\Environment"),
 	]
+	HKEY_NAMES = {
+		winreg.HKEY_CURRENT_USER: "HKEY_CURRENT_USER",
+		winreg.HKEY_LOCAL_MACHINE: "HKEY_LOCAL_MACHINE"
+	}
 	for Root, Path in Targets:
 		Status = value_exists(Root, Path, ENV_Name)
 		if Status == RegValueStatus.NO_PERMISSION:
-			print("Permission denied when accessing environment variables.")
-			sys.exit(2)
+			print(f"Permission denied when accessing environment variables at {HKEY_NAMES[Root]}\\{Path}.")
+			continue
 		if Status != RegValueStatus.EXISTS:
 			continue
 		Result = delete_value(Root, Path, ENV_Name)
-		check_value_deleted(Result, Root)
+		check_value_deleted(Result, Root, ENV_Name)
 	print(f"{ENV_Name} not found.")
 	sys.exit(1)
 def runBashScript(Win_File, Args, Flag=None):
@@ -282,7 +289,11 @@ def runBashScript(Win_File, Args, Flag=None):
 					if Flags == "*":
 						pass
 					elif Flags:
-						RunScript.extend(passDefaultFlag(Flags))
+						Parsed = passDefaultFlag(Flags)
+						if Parsed:
+							RunScript.extend(Parsed)
+						else:
+							RunScript.append("-l")
 					else:
 						RunScript.append("-l")
 				RunScript += [Git_Bash_Path, *Args]
@@ -303,12 +314,14 @@ def runBashScript(Win_File, Args, Flag=None):
 def detectFlag(Flag_List):
 	Flags = []
 	for Flag in Flag_List:
-		if Flag.startswith("-"):
+		if re.match(r"^-{1,2}[a-zA-Z0-9][a-zA-Z0-9\-]*$", Flag):
 			Flags.append(Flag)
 		else:
 			break
 	return Flags
 def passDefaultFlag(Flags):
+	if not isinstance(Flags, str):
+		return None
 	return [Flag.strip() for Flag in re.split(";", Flags) if Flag.strip()]
 def getLatestVersion():
 	UserName = "nguyenvuhoanglong2012"
@@ -318,14 +331,17 @@ def getLatestVersion():
 		print("Checking for updates...")
 		Request = urllib.request.Request(URL, headers={"Accept": "application/vnd.github+json", "User-Agent": "RunBash"})
 		with urllib.request.urlopen(Request, timeout=5) as Response:
+			if Response.status != 200:
+				print(f"HTTP error: {Response.status}")
+				sys.exit(2)
 			Data = json.loads(Response.read().decode())
 		if Data.get("draft", False) == False and Data.get("prerelease", False) == False:
 			Tag = Data.get("tag_name", "")
 			if not Tag:
 				return None
-			Match = re.search(r"\d+(?:\.\d+)+", Tag)
+			Match = re.search(r"^v?(\d+\.\d+(?:\.\d+)*)$", Tag)
 			if Match:
-				Version = Match.group()
+				Version = Match.group(1)
 				Target = None
 				for Asset in Data.get("assets", []):
 					if Asset.get("name", "").endswith(".exe"):
@@ -375,8 +391,8 @@ def getCurrentEXE():
 	else:
 		return None
 def downloadUpdate(URL, Name, Size, DefaultSaveFolder=True, SaveFolder=None):
+	SavePath = None
 	try:
-		SavePath = None
 		if DefaultSaveFolder:
 			SaveFolder = os.path.expandvars("%TEMP%")
 			SaveFolder = os.path.abspath(SaveFolder)
@@ -391,10 +407,18 @@ def downloadUpdate(URL, Name, Size, DefaultSaveFolder=True, SaveFolder=None):
 		else:
 			print("The path does not exist.")
 			sys.exit(1)
+		if not URL:
+			print("Invalid download URL.")
+			sys.exit(2)
 		print(f"Downloading {Name} ({formatSize(Size)})")
 		print(f"From {URL}")
 		print(f"To {SavePath}")
-		urllib.request.urlretrieve(URL, SavePath)
+		with urllib.request.urlopen(URL, timeout=10) as Response:
+			if Response.status != 200:
+				print(f"HTTP error: {Response.status}")
+				sys.exit(2)
+			with open(SavePath, "wb") as File:
+				shutil.copyfileobj(Response, File)
 		print("Checking size...")
 		Downloaded_Size = os.path.getsize(SavePath)
 		if Size > 0 and Downloaded_Size != Size:
@@ -412,7 +436,7 @@ def downloadUpdate(URL, Name, Size, DefaultSaveFolder=True, SaveFolder=None):
 			Current_EXE = getCurrentEXE()
 			if Current_EXE:
 				Current_EXE = os.path.abspath(Current_EXE)
-				if os.path.normcase(SavePath.lower()) == os.path.normcase(Current_EXE.lower()):
+				if os.path.normcase(os.path.abspath(SavePath)) == os.path.normcase(os.path.abspath(Current_EXE)):
 					sys.exit(2)
 			os.remove(SavePath)
 		sys.exit(2)
@@ -431,7 +455,7 @@ def update(UpdateFile):
 			TEMP_Folder = os.path.expandvars("%TEMP%")
 			TEMP_Folder = os.path.abspath(TEMP_Folder)
 			TEMP_EXE = os.path.join(TEMP_Folder, os.path.basename(Current_EXE))
-			if os.path.normcase(os.path.dirname(Current_EXE).lower()) == os.path.normcase(TEMP_Folder.lower()):
+			if os.path.normcase(os.path.dirname(Current_EXE)) == os.path.normcase(TEMP_Folder):
 				print("Error, you need to run \"RunBash.EXE --upgrade\" in another directory to be able to update.")
 				sys.exit(2)
 			BatchScript = "@echo off && " + " && ".join([
@@ -469,9 +493,12 @@ def update(UpdateFile):
 	except Exception as Error:
 		print("Error, unable to update:", Error)
 		sys.exit(2)
+def normalizeVersion(Version):
+	Nums = re.findall(r"\d+", Version)
+	return tuple(map(int, Nums)) if Nums else (0,)
 def compareVersion(Current, Latest):
-	Current = tuple(map(int, Current.split(".")))
-	Latest = tuple(map(int, Latest.split(".")))
+	Current = normalizeVersion(Current)
+	Latest = normalizeVersion(Latest)
 	if Current >= Latest:
 		return False
 	else:
